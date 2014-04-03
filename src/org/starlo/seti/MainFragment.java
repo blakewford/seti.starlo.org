@@ -5,7 +5,7 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import android.accounts.*;
-import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.*;
 import com.google.android.gms.common.Scopes;
 import android.content.DialogInterface;
 
@@ -28,13 +28,15 @@ public class MainFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private class AsyncBuilder extends AsyncTask<Void, Void, String[]>
+    private class AsyncBuilder extends AsyncTask<String, Void, String[]>
     {
 
-        protected String[] doInBackground(Void... nothing)
+        protected String[] doInBackground(String... email)
         {
             try{
-                GoogleAuthUtil.getToken(getActivity(), "blake.wford@gmail.com", Scopes.PLUS_LOGIN);
+                GoogleAuthUtil.getToken(getActivity(), email[0], Scopes.PLUS_LOGIN);
+            }catch(UserRecoverableAuthException e){
+                startActivityForResult(e.getIntent(), 0);
             }catch(Exception e){
                 final Exception copy = e;
                 getActivity().runOnUiThread(
@@ -82,7 +84,7 @@ public class MainFragment extends ListFragment {
                 {
                     public void onClick(DialogInterface dialog, int item)
                     {
-                        new AsyncBuilder().execute();
+                        new AsyncBuilder().execute(getAccountNames()[item]);
                     }
                 }
             ).create();
