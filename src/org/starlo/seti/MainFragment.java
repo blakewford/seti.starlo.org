@@ -38,11 +38,14 @@ public class MainFragment extends ListFragment {
     private class AsyncBuilder extends AsyncTask<String, Void, String[]>
     {
 
-         private String httpGetResponse(String url) throws Exception
+         private String httpGetResponse(String url, String token) throws Exception
          {
 
              StringBuilder sb = new StringBuilder();
-             HttpEntity entity = new DefaultHttpClient().execute(new HttpGet(url)).getEntity();
+             HttpGet httpGet = new HttpGet(url);
+             httpGet.setHeader("Authorization", "OAuth " + token);
+             httpGet.setHeader("Gdata-version", "3.0");
+             HttpEntity entity = new DefaultHttpClient().execute(httpGet).getEntity();
              if (entity != null)
              {
                  InputStream instream = entity.getContent();
@@ -60,9 +63,8 @@ public class MainFragment extends ListFragment {
         {
             final String emailAddress = email[0];
             try{
-                /*Auth Problem*/
                 String token = GoogleAuthUtil.getToken(getActivity(), email[0], "oauth2:"+"https://www.google.com/m8/feeds");
-                //String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full"+token);
+                String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full?alt=json", token);
             }catch(UserRecoverableAuthException e){
                 startActivityForResult(e.getIntent(), 0);
             }catch(Exception e){
