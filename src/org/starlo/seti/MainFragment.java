@@ -5,9 +5,16 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import android.accounts.*;
+import android.content.DialogInterface;
+
 import com.google.android.gms.auth.*;
 import com.google.android.gms.common.Scopes;
-import android.content.DialogInterface;
+
+import java.io.*;
+import org.apache.http.client.*;
+import org.apache.http.impl.client.*;
+import org.apache.http.*;
+import org.apache.http.client.methods.HttpGet;
 
 public class MainFragment extends ListFragment {
 
@@ -31,10 +38,30 @@ public class MainFragment extends ListFragment {
     private class AsyncBuilder extends AsyncTask<String, Void, String[]>
     {
 
+         private String httpGetResponse(String url) throws Exception
+         {
+
+             StringBuilder sb = new StringBuilder();
+             HttpEntity entity = new DefaultHttpClient().execute(new HttpGet(url)).getEntity();
+             if (entity != null)
+             {
+                 InputStream instream = entity.getContent();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
+                 String line = null;
+                 while ((line = reader.readLine()) != null) {
+                     sb.append(line);
+                 }
+                 instream.close();
+             }
+             return sb.toString();
+        }
+
         protected String[] doInBackground(String... email)
         {
+            final String emailAddress = email[0];
             try{
-                GoogleAuthUtil.getToken(getActivity(), email[0], Scopes.PLUS_LOGIN);
+                String token = GoogleAuthUtil.getToken(getActivity(), email[0], "oauth2:"+"https://www.google.com/m8/feeds");
+                //String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full"+token);
             }catch(UserRecoverableAuthException e){
                 startActivityForResult(e.getIntent(), 0);
             }catch(Exception e){
@@ -49,7 +76,7 @@ public class MainFragment extends ListFragment {
                     }
                 );
             }
-            return new String[]{};
+            return new String[]{"Blake Ford, blake.wford@gmail.com"};
         }
 
         protected void onPostExecute(String[] result)
