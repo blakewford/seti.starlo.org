@@ -60,6 +60,7 @@ public class MainFragment extends ListFragment {
         {
             final String emailAddress = email[0];
             try{
+                /*Auth Problem*/
                 String token = GoogleAuthUtil.getToken(getActivity(), email[0], "oauth2:"+"https://www.google.com/m8/feeds");
                 //String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full"+token);
             }catch(UserRecoverableAuthException e){
