@@ -64,14 +64,15 @@ public class MainFragment extends ListFragment {
 
         protected String[] doInBackground(String... email)
         {
-            String version = "";
+            String data = "";
             final String emailAddress = email[0];
             try{
                 String token = GoogleAuthUtil.getToken(getActivity(), email[0], "oauth2:"+"https://www.google.com/m8/feeds");
                 String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full?alt=json", token);
+                response = response.replace("$", "");
                 Gson gson = new GsonBuilder().create();
                 Contacts contacts = gson.fromJson(response, Contacts.class);
-                version = contacts.version;
+                data = contacts.feed.entry[0].gdname.gdfullName.t +": "+contacts.feed.entry[0].gdemail[0].address;
             }catch(UserRecoverableAuthException e){
                 startActivityForResult(e.getIntent(), 0);
             }catch(Exception e){
@@ -86,7 +87,7 @@ public class MainFragment extends ListFragment {
                     }
                 );
             }
-            return new String[]{version};
+            return new String[]{data};
         }
 
         protected void onPostExecute(String[] result)
