@@ -16,6 +16,9 @@ import org.apache.http.impl.client.*;
 import org.apache.http.*;
 import org.apache.http.client.methods.HttpGet;
 
+import com.google.gson.*;
+import com.google.gson.stream.*;
+
 public class MainFragment extends ListFragment {
 
     private AccountManager mAccountManager = null;
@@ -61,10 +64,14 @@ public class MainFragment extends ListFragment {
 
         protected String[] doInBackground(String... email)
         {
+            String version = "";
             final String emailAddress = email[0];
             try{
                 String token = GoogleAuthUtil.getToken(getActivity(), email[0], "oauth2:"+"https://www.google.com/m8/feeds");
                 String response = httpGetResponse("https://www.google.com/m8/feeds/contacts/"+emailAddress+"/full?alt=json", token);
+                Gson gson = new GsonBuilder().create();
+                Contacts contacts = gson.fromJson(response, Contacts.class);
+                version = contacts.version;
             }catch(UserRecoverableAuthException e){
                 startActivityForResult(e.getIntent(), 0);
             }catch(Exception e){
@@ -79,7 +86,7 @@ public class MainFragment extends ListFragment {
                     }
                 );
             }
-            return new String[]{"Blake Ford, blake.wford@gmail.com"};
+            return new String[]{version};
         }
 
         protected void onPostExecute(String[] result)
