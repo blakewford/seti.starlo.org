@@ -6,6 +6,7 @@ import android.view.*;
 import android.widget.*;
 import android.accounts.*;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.common.Scopes;
 import android.content.DialogInterface;
 
 public class MainFragment extends ListFragment {
@@ -32,6 +33,20 @@ public class MainFragment extends ListFragment {
 
         protected String[] doInBackground(Void... nothing)
         {
+            try{
+                GoogleAuthUtil.getToken(getActivity(), "blake.wford@gmail.com", Scopes.PLUS_LOGIN);
+            }catch(Exception e){
+                final Exception copy = e;
+                getActivity().runOnUiThread(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            Toast.makeText(getActivity(), copy.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                );
+            }
             return new String[]{};
         }
 
